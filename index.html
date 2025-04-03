@@ -1,40 +1,739 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
 
-		<title>reveal.js</title>
+    <title>Taller Vue.js 3 - Buscador GitHub</title>
 
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css">
+    <link rel="stylesheet" href="dist/reset.css" />
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/black.css" />
 
-		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+    <!-- Theme used for syntax highlighted code -->
+    <link rel="stylesheet" href="plugin/highlight/monokai.css" />
 
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-				hash: true,
+    <style>
+      .reveal pre code {
+        max-height: 500px;
+        font-size: 0.8em;
+      } /* Ajustar tamaño y altura */
+      .reveal .slides section img {
+        background: none;
+        border: none;
+        box-shadow: none;
+        margin: 5px;
+        max-height: 250px; /* Limitar altura imagen */
+      }
+      .reveal h1,
+      .reveal h2,
+      .reveal h3,
+      .reveal h4 {
+        text-transform: none;
+      }
+      .two-cols {
+        display: flex;
+        gap: 20px;
+      }
+      .two-cols > div {
+        flex: 1;
+      }
+      .small-code pre code {
+        font-size: 0.7em;
+      } /* Para bloques aún más pequeños */
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>Taller Vue.js 3</h1>
+          <h2>Proyecto: Buscador de Perfiles de GitHub</h2>
+          <p><small>Presentado por: Freilyn Bernabe</small></p>
+        </section>
 
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
-			});
-		</script>
-	</body>
+        <section>
+          <h2>Agenda del Taller</h2>
+          <ul style="font-size: 0.8em">
+            <li>¿Qué es Vue.js?</li>
+            <li>Setup: HTML Base y CDN Vue 3</li>
+            <li>La App Vue: `createApp`, `mount`</li>
+            <li>Estado Reactivo: `data()`</li>
+            <li>La Magia de la Reactividad</li>
+            <li>
+              Directivas: `v-model`, `v-on`, `v-bind`, `v-if`/`v-else`, `v-for`
+            </li>
+            <li>`v-if` vs `v-show`</li>
+            <li>Métodos: `methods` (incl. `async` y `Workspace`)</li>
+            <li>Propiedades Computadas: `computed`</li>
+            <li>Ciclo de Vida: `created` y `localStorage`</li>
+            <li>¡Construcción Guiada del Proyecto!</li>
+            <li>Preguntas y Próximos Pasos</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>¿Qué es Vue.js?</h2>
+          <p class="fragment">
+            Un <strong>framework progresivo</strong> de JavaScript.
+          </p>
+          <p class="fragment">
+            Enfocado en construir <strong>interfaces de usuario</strong> (la
+            Vista).
+          </p>
+          <h3 class="fragment">¿Por qué Vue.js?</h3>
+          <ul>
+            <li class="fragment">Curva de aprendizaje suave.</li>
+            <li class="fragment">Excelente rendimiento (Vue 3).</li>
+            <li class="fragment">Documentación clara.</li>
+            <li class="fragment">Reactividad potente.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Preparación: HTML Base</h2>
+          <p>Nuestro `index.html` inicial:</p>
+          <pre><code data-trim data-noescape class="html" style="font-size: 0.7em;">
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8" /&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+&lt;title&gt;Taller de Vue&lt;/title&gt;
+&lt;link rel="stylesheet" href="style.css" /&gt; &lt;!-- Nuestros estilos --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;!-- Aquí vivirá nuestra aplicación Vue --&gt;
+&lt;div id="app"&gt;
+ &lt;h1&gt;Buscador de Github&lt;/h1&gt;
+ &lt;!-- ... Más contenido vendrá aquí ... --&gt;
+&lt;/div&gt;
+
+&lt;!-- Scripts irán al final del body --&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+						 </code></pre>
+          <aside class="notes">
+            Mostrar solo la estructura básica del HTML. El contenedor #app es
+            clave.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Preparación: Scripts y Montaje</h2>
+          <p>Añadimos los scripts al final del `body`:</p>
+          <pre><code data-trim data-noescape class="html">
+&lt;!-- ... Código HTML de la app ... --&gt;
+`
+&lt;!-- 1. Incluimos Vue 3 desde CDN --&gt;
+&lt;script src="https://unpkg.com/vue@3/dist/vue.global.js"&gt;&lt;/script&gt;
+
+&lt;!-- 2. Incluimos nuestro código de la app Vue --&gt;
+&lt;script src="./main.js"&gt;&lt;/script&gt;
+
+&lt;!-- 3. Montamos la app definida en main.js en el div#app --&gt;
+&lt;script&gt;
+const appMount = app.mount("#app");
+&lt;/script&gt;
+&lt;/body&gt;
+						 </code></pre>
+          <aside class="notes">
+            Explicar el orden: Cargar Vue, cargar nuestro código que *usa* Vue,
+            y finalmente montar la app en el DOM.
+          </aside>
+        </section>
+
+        <section>
+          <h2>La App Vue: `createApp` y `data()`</h2>
+          <p>En `main.js`, creamos la app y definimos su estado inicial:</p>
+          <pre><code data-trim data-noescape class="javascript">
+const API_URL = 'https://api.github.com/users';
+
+// Creamos la aplicación Vue
+const app = Vue.createApp({ // ¡Ojo! Aún no está montada
+
+// Usamos Options API
+data() {
+// data() DEBE retornar un objeto.
+// Este objeto contiene el ESTADO REACTIVO inicial.
+return {
+	searchText: 'bernabedev', // Para el input de búsqueda
+	user: null,           // Guardará el resultado de la API
+	error: null,          // Para mensajes de error
+	favorites: new Map()  // Un Map para guardar favoritos
+												// (key: id, value: user object)
+}
+},
+
+// ... otras opciones como methods, computed vendrán aquí ...
+
+}); // Fin de createApp
+						 </code></pre>
+          <aside class="notes">
+            Enfocarse en `createApp` y la función `data()`. Explicar qué es el
+            estado y listar las propiedades iniciales y su propósito.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Reactividad: ¡La Magia! ✨</h2>
+          <p>
+            El estado (`data`) es <strong>reactivo</strong>: si cambia, el HTML
+            se actualiza.
+          </p>
+          <pre><code data-trim data-noescape class="html" style="font-size: 0.8em;">
+&lt;!-- HTML --&gt;
+&lt;input type="text" v-model="searchText" /&gt;
+&lt;h4&gt;{{ user?.name }}&lt;/h4&gt;
+&lt;p v-if="error != null"&gt;{{ error }}&lt;/p&gt;
+						 </code></pre>
+          <p>
+            <strong>Prueba en vivo (Consola):</strong> (`appMount` es la app
+            montada)
+          </p>
+          <ol>
+            <li>`appMount.searchText = 'vuejs'` -> Input cambia.</li>
+            <li class="fragment">
+              `appMount.error = 'Error de prueba'` -> Mensaje aparece.
+            </li>
+            <li class="fragment">
+              `appMount.error = null` -> Mensaje desaparece.
+            </li>
+          </ol>
+          <aside class="notes">
+            Demostración interactiva. Usar `appMount` (definido en el script de
+            montaje). Mostrar cómo cambios en `data` afectan la UI vinculada.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Directiva: `v-model`</h2>
+          <p>Enlace <strong>bidireccional</strong> para formularios.</p>
+          <pre><code data-trim data-noescape class="html">
+&lt;!-- index.html: El input está vinculado a 'searchText' --&gt;
+&lt;input type="text" v-model="searchText" /&gt;
+						 </code></pre>
+          <pre><code data-trim data-noescape class="javascript">
+// main.js -> data()
+data() { return { searchText: 'bernabedev', /* ... */ } }
+						 </code></pre>
+          <p class="fragment">Input ↔️ `searchText` (Sincronizados)</p>
+          <aside class="notes">
+            Ejemplo claro y conciso del input de búsqueda.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Directiva: `v-on` (o `@`)</h2>
+          <p>Escucha eventos del DOM y ejecuta métodos.</p>
+          <pre><code data-trim data-noescape class="html">
+&lt;!-- Llama al método 'doSearch' al hacer click --&gt;
+&lt;button v-on:click="doSearch"&gt;Search&lt;/button&gt;
+
+&lt;!-- Forma corta con @ --&gt;
+&lt;button @click="addToFavorite"&gt;Add favorite&lt;/button&gt;
+
+&lt;!-- Con argumentos --&gt;
+&lt;button @click="removeFavoriteById(item.id)"&gt;Remove&lt;/button&gt;
+							</code></pre>
+          <p>Estos métodos se definen en la opción `methods`.</p>
+          <aside class="notes">
+            Introducir la sintaxis y mostrar los 3 tipos de uso en el proyecto
+            (sin argumento, con argumento implícito 'event', con argumento
+            explícito).
+          </aside>
+        </section>
+
+        <section>
+          <h2>Métodos: `doSearch()`</h2>
+          <p>Lógica para buscar en la API de GitHub.</p>
+          <pre><code data-trim data-noescape class="javascript" style="font-size: 0.75em;">
+// main.js -> methods
+async doSearch() {
+this.user = null // Resetea estado previo
+this.error = null
+
+try {
+// 1. Llama a la API con 'fetch' y espera ('await')
+const res = await fetch(`${API_URL}/${this.searchText}`)
+
+// 2. Verifica si la respuesta es OK (ej: no 404)
+if (!res.ok) {
+	const data = await res.json().catch(() => ({})) // Intenta leer error GH
+	throw new Error(data.message || `Usuario '${this.searchText}' no encontrado`);
+}
+
+// 3. Convierte la respuesta a JSON y espera ('await')
+const data = await res.json()
+
+// 4. ¡Actualiza el estado reactivo! -> Vue actualiza el HTML
+this.user = data
+
+} catch (error) { // Captura errores (fetch, !res.ok, json parse)
+console.error(error)
+this.error = error.message // Muestra el error en la UI
+}
+// 'finally' se ejecutaría aquí si fuera necesario
+}
+						 </code></pre>
+          <aside class="notes">
+            Explicar paso a paso ESTE método: reset, `async/await`, `Workspace`,
+            manejo de `res.ok`, `try/catch`, actualización de
+            `this.user`/`this.error`. Es el método más complejo.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Métodos: Favoritos</h2>
+          <p>Funciones para añadir/quitar favoritos.</p>
+          <pre><code data-trim data-noescape class="javascript">
+// main.js -> methods
+addToFavorite() {
+// Añade el usuario actual al Map 'favorites'
+// La clave es user.id, el valor es el objeto user completo
+this.favorites.set(this.user.id, this.user);
+this.saveInLocalStorage(); // Persiste el cambio
+},
+
+removeFavorite() {
+// Quita el usuario *actualmente mostrado* del Map
+this.favorites.delete(this.user.id);
+this.saveInLocalStorage();
+},
+
+removeFavoriteById(id) {
+// Quita un favorito específico usando su ID (desde la lista)
+this.favorites.delete(id);
+this.saveInLocalStorage();
+},
+						 </code></pre>
+          <aside class="notes">
+            Explicar estos métodos más simples: cómo interactúan con el `Map`
+            `this.favorites` y llaman a `saveInLocalStorage`.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Métodos: Persistencia (LocalStorage)</h2>
+          <p>
+            Guardamos y cargamos favoritos para que no se pierdan al recargar.
+          </p>
+          <pre><code data-trim data-noescape class="javascript" style="font-size: 0.8em;">
+// main.js -> methods
+saveInLocalStorage() {
+// 1. Convierte el Map a un Array de pares [key, value]
+// 2. Convierte el Array a un string JSON
+// 3. Guarda el string en localStorage con la clave 'favorites'
+localStorage.setItem('favorites', JSON.stringify([...this.favorites]));
+},
+
+loadFromLocalStorage() {
+// 1. Lee el string JSON desde localStorage
+const dataRaw = localStorage.getItem('favorites');
+if (dataRaw) {
+// 2. Convierte el string JSON de vuelta a un Array
+const data = JSON.parse(dataRaw);
+// 3. Crea un nuevo Map a partir del Array para restaurar el estado
+this.favorites = new Map(data);
+}
+}
+							</code></pre>
+          <aside class="notes">
+            Explicar brevemente cómo funciona `localStorage` (clave-valor, solo
+            strings) y los pasos para guardar/cargar el `Map` (convertir a/desde
+            Array JSON). Mencionar que `loadFromLocalStorage` se llama al inicio
+            (en `created`).
+          </aside>
+        </section>
+
+        <section>
+          <h2>Directiva: `v-bind` (o `:`)</h2>
+          <p>Vincula atributos HTML a datos de Vue.</p>
+          <pre><code data-trim data-noescape class="html">
+&lt;!-- Vincula 'src' y 'alt' a propiedades del objeto 'user' --&gt;
+&lt;img v-bind:src="user.avatar_url" :alt="user.name" /&gt;
+
+&lt;!-- Igual para items en la lista de favoritos --&gt;
+&lt;img :src="item.avatar_url" :alt="item.name" /&gt;
+						 </code></pre>
+          <p class="fragment">Hace que los atributos sean dinámicos.</p>
+          <aside class="notes">
+            Ejemplo claro con las imágenes del proyecto.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Directivas: `v-if` y `v-else`</h2>
+          <p>Muestran/ocultan elementos del DOM.</p>
+          <pre><code data-trim data-noescape class="html" style="font-size: 0.8em;">
+&lt;!-- Muestra si hay un usuario cargado --&gt;
+&lt;div v-if="user != null" class="user"&gt; ... &lt;/div&gt;
+&lt;!-- O podríamos usar: v-if="hasUser" --&gt;
+
+&lt;!-- Muestra si hay un error --&gt;
+&lt;div v-if="error != null"&gt;&lt;p&gt;{{error}}&lt;/p&gt;&lt;/div&gt;
+
+&lt;!-- Botones condicionales Add/Remove --&gt;
+&lt;button v-if="!favorites.has(user.id)" @click="addToFavorite"&gt;Add&lt;/button&gt;
+&lt;button v-else @click="removeFavorite"&gt;Remove&lt;/button&gt;
+						 </code></pre>
+          <p class="fragment">`v-if`: Añade/quita el elemento del DOM.</p>
+          <aside class="notes">
+            Mostrar los usos en el proyecto. Recordar la alternativa con
+            `computed`. Enfatizar el impacto en el DOM.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Directiva: `v-for` (Iterando un Map)</h2>
+          <p>
+            Renderiza elementos de una colección. Aquí, iteramos el `Map` de
+            favoritos.
+          </p>
+          <pre><code data-trim data-noescape class="html">
+&lt;!-- Solo muestra la lista si hay favoritos (opcional: v-if="hasFavorites") --&gt;
+&lt;ul v-if="favorites.size" class="favorites"&gt;
+
+&lt;!-- favorites es un Map: [ [id1, user1], [id2, user2], ... ] --&gt;
+&lt;!-- v-for="[key, value] in map" itera sobre pares [clave, valor] --&gt;
+&lt;!-- Usamos '[, item]' para ignorar la clave (id) y obtener solo el valor (user obj) --&gt;
+&lt;li v-for="[, item] in favorites" :key="item.id"&gt; &lt;!-- KEY ES VITAL --&gt;
+&lt;img :src="item.avatar_url" :alt="item.name" /&gt;
+{{ item.name }}
+&lt;!-- ... más detalles del favorito ... --&gt;
+&lt;button @click="removeFavoriteById(item.id)"&gt;Remove&lt;/button&gt;
+&lt;/li&gt;
+
+&lt;/ul&gt;
+						 </code></pre>
+          <aside class="notes">
+            Explicar específicamente cómo `v-for` itera sobre un `Map` y la
+            sintaxis de desestructuración `[, item]` para obtener solo el valor.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Directiva: `v-for` y la importancia de `:key`</h2>
+          <pre><code data-trim data-noescape class="html">
+&lt;li v-for="[, item] in favorites" :key="item.id"&gt;
+&lt;!-- ... contenido del li ... --&gt;
+&lt;/li&gt;
+							</code></pre>
+          <ul>
+            <li>
+              `v-bind:key` (o `:key`) es <strong>ESENCIAL</strong> al usar
+              `v-for`.
+            </li>
+            <li class="fragment">
+              Debe ser un valor <strong>único</strong> para cada elemento de la
+              lista (string o número). Usamos `item.id` que es único para cada
+              usuario de GitHub.
+            </li>
+            <li class="fragment">
+              Ayuda a Vue a identificar cada nodo de forma única.
+            </li>
+            <li class="fragment">
+              Permite a Vue reutilizar y reordenar elementos eficientemente,
+              evitando errores y mejorando el rendimiento.
+            </li>
+            <li class="fragment">
+              <strong
+                >NUNCA uses el índice del array como `key` si la lista puede
+                cambiar de orden, añadirse o eliminarse elementos en
+                medio.</strong
+              >
+            </li>
+          </ul>
+          <aside class="notes">
+            Dedicada exclusivamente a explicar POR QUÉ `:key` es tan importante.
+            Usar `item.id` es perfecto aquí. Advertir contra el uso del índice.
+          </aside>
+        </section>
+
+        <section>
+          <h2>`v-if` vs `v-show`</h2>
+          <p>Ambas ocultan/muestran, ¿cuál usar?</p>
+          <div class="two-cols">
+            <div>
+              <h4><code>v-if</code></h4>
+              <ul>
+                <li><strong>DOM:</strong> Añade / Elimina</li>
+                <li><strong>Coste Toggle:</strong> Alto</li>
+                <li><strong>Coste Inicial:</strong> Bajo (si false)</li>
+                <li><strong>Uso:</strong> Cambios poco frecuentes.</li>
+              </ul>
+            </div>
+            <div>
+              <h4><code>v-show</code></h4>
+              <ul>
+                <li><strong>DOM:</strong> Siempre presente</li>
+                <li><strong>CSS:</strong> `display: none;`</li>
+                <li><strong>Coste Toggle:</strong> Bajo</li>
+                <li><strong>Coste Inicial:</strong> Alto</li>
+                <li><strong>Uso:</strong> Cambios muy frecuentes.</li>
+              </ul>
+            </div>
+          </div>
+          <p style="margin-top: 15px">
+            En nuestro app, `v-if` es ideal para mostrar/ocultar secciones
+            enteras (info user, errores, lista favs) que no cambian
+            constantemente.
+          </p>
+          <aside class="notes">Comparativa rápida y clara.</aside>
+        </section>
+
+        <section>
+          <h2>Propiedades Computadas (`computed`)</h2>
+          <p>Valores derivados del estado (`data`). ¡Se cachean!</p>
+          <pre><code data-trim data-noescape class="javascript">
+// main.js -> computed
+computed: {
+// Deriva si la lista de favoritos está vacía o no
+hasFavorites() {
+// Se recalcula SOLO si 'this.favorites' cambia
+console.log('Calculando hasFavorites...');
+return this.favorites.size > 0;
+},
+
+// Deriva si hay un usuario cargado o no
+hasUser() {
+// Se recalcula SOLO si 'this.user' cambia
+console.log('Calculando hasUser...');
+return this.user != null;
+}
+}
+						 </code></pre>
+          <p class="fragment">
+            Son más eficientes que un método para mostrar datos derivados,
+            porque Vue guarda (cachea) el resultado.
+          </p>
+          <aside class="notes">
+            Explicar qué son y mostrar las definiciones del proyecto. Enfatizar
+            el caching y la dependencia reactiva.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Propiedades Computadas (Uso)</h2>
+          <p>Podemos usarlas en el HTML para mayor claridad:</p>
+          <pre><code data-trim data-noescape class="html">
+&lt;!-- Forma directa (funciona, pero menos clara) --&gt;
+&lt;div v-if="user != null" class="user"&gt; ... &lt;/div&gt;
+&lt;ul v-if="favorites.size > 0" class="favorites"&gt; ... &lt;/ul&gt;
+
+&lt;!-- Usando Computed Properties (más legible) --&gt;
+&lt;div v-if="hasUser" class="user"&gt; ... &lt;/div&gt;
+&lt;ul v-if="hasFavorites" class="favorites"&gt; ... &lt;/ul&gt;
+						 </code></pre>
+          <p class="fragment">
+            Usar computadas hace la plantilla más declarativa ("muestra esto si
+            hay usuario") en lugar de imperativa ("muestra esto si user no es
+            null").
+          </p>
+          <aside class="notes">
+            Mostrar la comparación y explicar la mejora en legibilidad y
+            mantenibilidad.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Ciclo de Vida: `created`</h2>
+          <p>Hooks para ejecutar código en momentos clave.</p>
+          <img
+            src="https://vuejs.org/assets/lifecycle.MuZLBFAS.png"
+            alt="Diagrama Ciclo de Vida Vue 3"
+          />
+          <p class="fragment">Usamos `created` para cargar datos iniciales:</p>
+          <pre
+            class="fragment"
+          ><code data-trim data-noescape class="javascript">
+// main.js
+created() {
+// Se ejecuta justo después de crear la instancia Vue,
+// antes de insertarla en la página (DOM).
+// Ideal para lógica inicial que no depende del DOM.
+this.loadFromLocalStorage(); // Carga favoritos guardados
+}
+							</code></pre>
+          <aside class="notes">
+            Explicar qué es `created` y por qué se usa aquí para
+            `loadFromLocalStorage`.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Proyecto Final: Estructura HTML</h2>
+          <p>Resumen del `index.html` con las directivas clave:</p>
+          <pre><code data-trim data-noescape class="html" style="font-size: 0.65em;">
+&lt;div id="app"&gt;
+&lt;h1&gt;Buscador de Github&lt;/h1&gt;
+&lt;!-- Input vinculado con v-model --&gt;
+&lt;div class="search"&gt;
+&lt;input type="text" v-model="searchText" /&gt;
+&lt;!-- Botón llama método con @click --&gt;
+&lt;button @click="doSearch"&gt;Search&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- Sección usuario mostrada con v-if --&gt;
+&lt;div v-if="hasUser" class="user"&gt;
+&lt;!-- Atributos vinculados con :src / :alt --&gt;
+&lt;img :src="user.avatar_url" :alt="user.name" /&gt;
+&lt;div&gt;
+	&lt;h4&gt;{{user.name}}&lt;/h4&gt; &lt;!-- Interpolación --&gt;
+	&lt;!-- Botones condicionales con v-if/v-else y @click --&gt;
+	&lt;button v-if="!favorites.has(user.id)" @click="addToFavorite"&gt;Add&lt;/button&gt;
+	&lt;button v-else @click="removeFavorite"&gt;Remove&lt;/button&gt;
+	&lt;p&gt;{{user.bio}}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Mensaje de error con v-if --&gt;
+&lt;div v-if="error != null"&gt;&lt;p&gt;{{error}}&lt;/p&gt;&lt;/div&gt;
+
+&lt;!-- Lista favoritos con v-if y v-for --&gt;
+&lt;ul v-if="hasFavorites" class="favorites"&gt;
+&lt;!-- Iteración con v-for y :key obligatorio --&gt;
+&lt;li v-for="[, item] in favorites" :key="item.id"&gt;
+	&lt;!-- ... contenido li con :src, {{interpolación}}, @click ... --&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+						 </code></pre>
+          <aside class="notes">
+            Vista general del HTML final, resaltando dónde se usan las
+            directivas principales.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Proyecto Final: Estructura JS (`main.js`)</h2>
+          <p>Resumen de las opciones de la App Vue:</p>
+          <pre><code data-trim data-noescape class="javascript" style="font-size: 0.75em;">
+const API_URL = '...';
+
+const app = Vue.createApp({
+// ESTADO REACTIVO INICIAL
+data() {
+return { /* searchText, user, error, favorites */ }
+},
+
+// FUNCIONES (LÓGICA)
+methods: {
+async doSearch() { /* Fetch API */ },
+addToFavorite() { /* Modifica Map favorites */ },
+removeFavorite() { /* Modifica Map favorites */ },
+removeFavoriteById(id) { /* Modifica Map favorites */ },
+saveInLocalStorage() { /* Guarda Map en localStorage */ },
+loadFromLocalStorage() { /* Carga Map desde localStorage */ }
+},
+
+// VALORES DERIVADOS (CACHEADOS)
+computed: {
+hasFavorites() { /* favorites.size > 0 */ },
+hasUser() { /* user != null */ }
+},
+
+// HOOK CICLO DE VIDA (LÓGICA INICIAL)
+created() {
+this.loadFromLocalStorage();
+},
+});
+
+// ¡No olvidar montar la app!
+// app.mount('#app'); // (En index.html)
+						 </code></pre>
+          <aside class="notes">
+            Vista general de las secciones principales de `main.js` y qué tipo
+            de lógica va en cada una (`data`, `methods`, `computed`, `created`).
+          </aside>
+        </section>
+
+        <section>
+          <h2>¡Felicidades! 🎉</h2>
+          <p>Construiste un Buscador GitHub con <strong>Vue 3</strong>.</p>
+          <h3>Conceptos Clave Usados:</h3>
+          <ul style="font-size: 0.9em">
+            <li>`createApp`, `data`, `mount`</li>
+            <li>Reactividad</li>
+            <li>
+              Directivas: `v-model`, `v-on`, `v-bind`, `v-if/else`, `v-for`,
+              `:key`
+            </li>
+            <li>`v-if` vs `v-show`</li>
+            <li>
+              `methods` (incl. `async`, `Workspace`, `Map`, `localStorage`)
+            </li>
+            <li>`computed` (Valores derivados y cacheados)</li>
+            <li>`created` (Lifecycle Hook)</li>
+          </ul>
+          <h2>¿Preguntas?</h2>
+        </section>
+
+        <section>
+          <h2>¿Y Ahora Qué? Próximos Pasos</h2>
+          <ul>
+            <li class="fragment">
+              <strong>Vite / Vue CLI:</strong> Para proyectos más grandes (`npm
+              create vue@latest`).
+            </li>
+            <li class="fragment">
+              <strong>Componentes (.vue):</strong> Reutilizar partes de UI y
+              lógica.
+            </li>
+            <li class="fragment">
+              <strong>Composition API:</strong> Otra forma de organizar el
+              código (alternativa a Options API).
+            </li>
+            <li class="fragment">
+              <strong>Vue Router:</strong> Para navegación en SPAs.
+            </li>
+            <li class="fragment">
+              <strong>Pinia:</strong> Manejo de estado global.
+            </li>
+            <li class="fragment">
+              <strong>Documentación Oficial:</strong>
+              <a href="https://vuejs.org/" target="_blank">Vue 3</a>
+            </li>
+            <li class="fragment">
+              <strong>Reto:</strong> Añadir un indicador visual de "Cargando..."
+              mientras `doSearch` se ejecuta.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>¡Muchas Gracias!</h2>
+          <p>¡Sigue aprendiendo y construyendo!</p>
+          <p><small>Freilyn Bernabe</small></p>
+          <p>
+            <small
+              >Twitter: @bernabedev, LinkedIn: @bernabedev, GitHub: @bernabedev,
+              Email: freilyn@bernabe.dev</small
+            >
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script>
+      // More info about initialization & config:
+      // - https://revealjs.com/initialization/
+      // - https://revealjs.com/config/
+      Reveal.initialize({
+        hash: true,
+
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+      });
+    </script>
+  </body>
 </html>
